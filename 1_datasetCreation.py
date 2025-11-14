@@ -5,6 +5,10 @@ import cv2
 import csv
 import os
 
+
+from app import db, Student, app
+
+
 #cascade = 'haarcascade_frontalface_default.xml'
 cascade = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
 detector = cv2.CascadeClassifier(cascade)
@@ -14,6 +18,12 @@ Roll_Number = int(input("Enter your Roll_Number : "))
 dataset = 'dataset'
 sub_data = Name
 path = os.path.join(dataset, sub_data)
+
+# Insert into DB
+with app.app_context():
+    new_student = Student(name=Name, rollno=Roll_Number)
+    db.session.add(new_student)
+    db.session.commit()
 
 if not os.path.isdir(path):
     os.mkdir(path)
@@ -52,75 +62,7 @@ while total < 25:
         break
 
 
-
 cam.release()
 cv2.destroyAllWindows()
 
 
-
-'''
-import imutils
-import time
-import cv2
-import csv
-import os
-
-# Load face cascade
-cascade = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-detector = cv2.CascadeClassifier(cascade)
-
-# Input details
-Name = str(input("Enter your Name : "))
-Roll_Number = int(input("Enter your Roll_Number : "))
-dataset = 'dataset'
-sub_data = Name
-path = os.path.join(dataset, sub_data)
-
-if not os.path.isdir(path):
-    os.mkdir(path)
-    print("Folder created for:", sub_data)
-
-# Save student info in CSV
-info = [str(Name), str(Roll_Number)]
-with open('student.csv', 'a', newline="") as csvFile:
-    write = csv.writer(csvFile)
-    write.writerow(info)
-
-print("Loading image instead of video...")
-
-# Load your image
-image_path = "dataset/thiru.jpg"   # change with your uploaded image
-frame = cv2.imread(image_path)
-
-if frame is None:
-    print("Error: Image not found!")
-    exit()
-
-frame = imutils.resize(frame, width=400)
-
-# Detect faces
-rects = detector.detectMultiScale(
-    cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), scaleFactor=1.1,
-    minNeighbors=5, minSize=(30, 30))
-
-total = 0
-for (x, y, w, h) in rects:
-    # Crop face region
-    face = frame[y:y+h, x:x+w]
-
-    # Save the same face 10 times
-    for i in range(10):
-        p = os.path.sep.join([path, "{}.png".format(str(total).zfill(5))])
-        cv2.imwrite(p, face)
-        total += 1
-
-    # Draw rectangle
-    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-
-cv2.imshow("Inserted Image", frame)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-
-print(f"✅ {total} images saved in '{path}'")
-
-'''

@@ -1,244 +1,5 @@
-<!-- 
 
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Attendance Report</title>
- <style>
-  /* --- Body & Font --- */
-  body {
-    font-family: "Segoe UI", Tahoma, sans-serif;
-    background: linear-gradient(135deg, #e0f7fa, #f1f8e9);
-    color: #333;
-    text-align: center;
-    margin: 0;
-    padding: 20px;
-  }
-  
-
-  h1 {
-    color: #00796b;
-    margin-bottom: 25px;
-    font-size: 2rem;
-    letter-spacing: 1px;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-  }
-
-  /* --- Top Bar & Search --- */
-  .top-bar {
-    width: 80%;
-    margin: auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-  }
-
-  input[type="text"] {
-    padding: 10px 14px;
-    width: 60%;
-    border: 1px solid #ccc;
-    border-radius: 25px;
-    outline: none;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-  }
-
-  input[type="text"]:focus {
-    border-color: #00796b;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-  }
-
-  /* --- Buttons --- */
-  .btn {
-    background: linear-gradient(90deg, #00bfa5, #00796b);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 25px;
-    text-decoration: none;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: 600;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    transition: all 0.3s ease;
-  }
-
-  .btn:hover {
-    background: linear-gradient(90deg, #00796b, #004d40);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-  }
-
-  a.delete-btn {
-    background: linear-gradient(90deg, #ef5350, #c62828);
-    color: white;
-    padding: 6px 12px;
-    text-decoration: none;
-    border-radius: 25px;
-    font-size: 14px;
-    transition: all 0.3s ease;
-    display: inline-block;
-  }
-
-  a.delete-btn:hover {
-    background: linear-gradient(90deg, #c62828, #910000);
-    transform: translateY(-2px);
-  }
-
-  .back-btn {
-    display: inline-block;
-    margin-top: 25px;
-    padding: 12px 24px;
-    background: linear-gradient(90deg, #43a047, #1b5e20);
-    color: white;
-    border-radius: 25px;
-    text-decoration: none;
-    font-weight: bold;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    transition: all 0.3s ease;
-  }
-
-  .back-btn:hover {
-    background: linear-gradient(90deg, #1b5e20, #004d00);
-    transform: translateY(-2px);
-  }
-
-  /* --- Table --- */
-  table {
-    border-collapse: collapse;
-    width: 80%;
-    margin: 25px auto;
-    background-color: #ffffff;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-    transition: transform 0.2s ease;
-  }
-
-  table:hover {
-    transform: scale(1.01);
-  }
-
-  th {
-    background: linear-gradient(90deg, #00796b, #004d40);
-    color: white;
-    padding: 14px;
-    text-transform: uppercase;
-    font-weight: bold;
-    letter-spacing: 0.5px;
-  }
-
-  td {
-    padding: 12px;
-    border-bottom: 1px solid #eee;
-    text-align: center;
-    transition: background 0.2s;
-  }
-
-  tr:hover td {
-    background-color: #e0f2f1;
-  }
-
-  /* --- Responsive --- */
-  @media (max-width: 768px) {
-    table { width: 95%; }
-    input[type="text"] { width: 100%; margin-bottom: 10px; }
-    .top-bar { flex-direction: column; align-items: stretch; }
-  }
-</style>
-
-</head>
-<body>
-
-  <h1>📋 Attendance Report</h1>
-
-  <div class="top-bar">
-    <input type="text" id="searchInput" placeholder="🔍 Search by name..." onkeyup="searchTable()">
-    <button class="btn" onclick="downloadCSV()">⬇ Download CSV</button>
-    <a href="{{ url_for('show_absent_page') }}" class="btn">🚫 View Absent List</a>
-  </div>
-
-  <table id="attendanceTable">
-    <tr>
-      <th>S.No</th>
-      <th>Name</th>
-      <th>Date</th>
-      <th>Time</th>
-      <th>Action</th>
-    </tr>
-
-    {% set count = 1 %}
-    {% for name, info in data.items() %}
-    <tr>
-      <td>{{ count }}</td>
-      <td>{{ name }}</td>
-      <td>{{ info.date }}</td>
-      <td>{{ info.time }}</td>
-      <td>
-         <a href="{{ url_for('show_attendance', name=name) }}" class="delete-btn">Delete</a> 
-         <a href="{{ url_for('delete_attendance', name=name) }}" class="delete-btn">Delete</a>
-
-      </td>
-    </tr>
-    {% set count = count + 1 %}
-    {% endfor %}
-  </table>
-
-  <a href="/" class="back-btn">⬅ Back to Camera</a>
-
-
-
-  <script>
-    function searchTable() {
-      const input = document.getElementById("searchInput");
-      const filter = input.value.toUpperCase();
-      const table = document.getElementById("attendanceTable");
-      const tr = table.getElementsByTagName("tr");
-
-      for (let i = 1; i < tr.length; i++) {
-        const td = tr[i].getElementsByTagName("td")[1];
-        if (td) {
-          const txtValue = td.textContent || td.innerText;
-          tr[i].style.display = txtValue.toUpperCase().includes(filter) ? "" : "none";
-        }
-      }
-    }
-
-    function downloadCSV() {
-      let table = document.getElementById("attendanceTable");
-      let rows = table.querySelectorAll("tr");
-      let csv = [];
-
-      for (let i = 0; i < rows.length; i++) {
-        let cols = rows[i].querySelectorAll("td, th");
-        let row = [];
-        for (let j = 0; j < cols.length - 1; j++) { 
-          row.push(cols[j].innerText);
-        }
-        csv.push(row.join(","));
-      }
-
-      let csvFile = new Blob([csv.join("\n")], { type: "text/csv" });
-      let downloadLink = document.createElement("a");
-      downloadLink.download = "attendance_report.csv";
-      downloadLink.href = window.URL.createObjectURL(csvFile);
-      downloadLink.style.display = "none";
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-    }
-  </script>
-
-
-
-
-
-</body>
-</html> -->
-
- <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -289,7 +50,7 @@
 
 
 <a href="/" class="btn">⬅ Back to Camera</a>
-<a href="{{ url_for('show_absent_page') }}" class="btn">🚫 View Absent List</a>
+
 
 <a href="{{ url_for('admin_login') }}" class="btn">👨‍💼 Admin Login</a>
 
@@ -300,19 +61,21 @@
     <th>Date</th>
     <th>Time</th>
     <th>Action</th>
+    
   </tr>
   {% set count = 1 %}
-  {% for name, info in data.items() %}
+  {% for row in data %}
   <tr>
-    <td>{{ count }}</td>
-    <td>{{ name }}</td>
-    <td>{{ info.date }}</td>
-    <td>{{ info.time }}</td>
+    <td>{{ loop.index }}</td>
+    <td>{{ row.student_name }}</td>
+    <td>{{ row.date }}</td>
+    <td>{{ row.time }}</td>
     <td>
-      <a href="{{ url_for('delete_attendance', name=name) }}" class="delete-btn"
-         onclick="return confirm('Are you sure you want to delete {{ name }}?');">
-         Delete
-      </a>
+     <form action="{{ url_for('delete_attendance', id=row.id) }}" method="POST" style="display:inline;">
+    <button type="submit" class="btn btn-danger">Delete</button>
+    </form>
+
+
     </td>
   </tr>
   {% set count = count + 1 %}
@@ -321,3 +84,5 @@
 
 </body>
 </html>
+
+

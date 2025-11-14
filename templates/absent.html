@@ -1,3 +1,222 @@
+<!-- 
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Absent & Late Students</title>
+<style>
+  body { font-family: "Poppins", sans-serif; text-align: center; padding: 20px; background: #f0f8ff; color: #333; }
+  h2 { color: #00796b; }
+  h3 { color: #d32f2f; }
+  table { border-collapse: collapse; width: 80%; margin: 20px auto; background: #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.15); border-radius: 10px; }
+  th { padding: 10px; color: white; }
+  #presentTable th { background: linear-gradient(90deg, #81c784, #388e3c); }
+  #absentTable th { background: linear-gradient(90deg, #ef5350, #c62828); }
+  td { padding: 10px; border-bottom: 1px solid #ddd; }
+  tr:hover { background-color: #e0f2f1; }
+  button { margin: 10px; padding: 10px 20px; border-radius: 25px; background: #00796b; color: white; cursor: pointer; }
+</style>
+</head>
+
+<body>
+
+<h2>✅ Present / Late Students</h2>
+<button onclick="downloadCSV('present')">⬇ Download CSV</button>
+
+<table id="presentTable">
+  <tr>
+    <th>S.No</th><th>Name</th><th>Status</th><th>Date</th><th>Time</th>
+  </tr>
+
+  {% for student in late_students %}
+  <tr>
+    <td>{{ loop.index }}</td>
+    <td>{{ student.student_name }}</td>
+    <td>Late</td>
+    <td>{{ student.date }}</td>
+    <td>{{ student.time }}</td>
+  </tr>
+  {% endfor %}
+
+  {% for student in data if student not in late_students %}
+  <tr>
+    <td>{{ loop.index + late_students|length }}</td>
+    <td>{{ student.student_name }}</td>
+    <td>Present</td>
+    <td>{{ student.date }}</td>
+    <td>{{ student.time }}</td>
+  </tr>
+  {% endfor %}
+
+</table>
+
+<h3>🚫 Absent Students</h3>
+<button onclick="downloadCSV('absent')">⬇ Download CSV</button>
+
+<table id="absentTable">
+  <tr>
+    <th>S.No</th><th>Name</th><th>Status</th><th>Date</th><th>Time</th>
+  </tr>
+
+  {% for student in absentees %}
+  <tr>
+    <td>{{ loop.index }}</td>
+    <td>{{ student.student_name }}</td>
+    <td>Absent</td>
+    <td>{{ student.date }}</td>
+    <td>{{ student.time }}</td>
+  </tr>
+  {% endfor %}
+
+</table>
+
+<br>
+<a href="{{ url_for('show_attendance') }}"><button>⬅ Back To Attendance</button></a>
+
+<script>
+function quoteCell(str) {
+  if (!str) return '""';
+  const s = str.toString();
+  return s.includes(',') || s.includes('"') ? `"${s.replace(/"/g,'""')}"` : s;
+}
+
+function downloadCSV(type) {
+  const table = document.getElementById(type + 'Table');
+  let rows = [];
+  const headers = Array.from(table.querySelectorAll('th')).map(h => quoteCell(h.innerText));
+  rows.push(headers.join(','));
+
+  for (const tr of table.querySelectorAll('tr')) {
+    const cells = Array.from(tr.querySelectorAll('td')).map(td => quoteCell(td.innerText));
+    if (cells.length) rows.push(cells.join(','));
+  }
+
+  const csvBlob = new Blob([rows.join('\n')], {type:'text/csv'});
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(csvBlob);
+  link.download = type + '_students.csv';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+</script>
+
+</body>
+</html> -->
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Absent & Late Students</title>
+<style>
+  body { font-family: "Poppins", sans-serif; text-align: center; padding: 20px; background: #f0f8ff; color: #333; }
+  h2 { color: #00796b; }
+  h3 { color: #d32f2f; }
+  table { border-collapse: collapse; width: 80%; margin: 20px auto; background: #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.15); border-radius: 10px; }
+  th { padding: 10px; color: white; }
+  #presentTable th { background: linear-gradient(90deg, #81c784, #388e3c); }
+  #absentTable th { background: linear-gradient(90deg, #ef5350, #c62828); }
+  td { padding: 10px; border-bottom: 1px solid #ddd; }
+  tr:hover { background-color: #e0f2f1; }
+  button { margin: 10px; padding: 10px 20px; border-radius: 25px; background: #00796b; color: white; cursor: pointer; }
+</style>
+</head>
+
+<body>
+
+<h2>✅ Present / Late Students</h2>
+<button onclick="downloadCSV('present')">⬇ Download CSV</button>
+
+<table id="presentTable">
+  <tr>
+    <th>S.No</th><th>Name</th><th>Status</th><th>Date</th><th>Time</th>
+  </tr>
+
+  {% for student in late_students %}
+  <tr>
+    <td>{{ loop.index }}</td>
+    <td>{{ student.name }}</td>
+    <td>Late</td>
+    <td>{{ student.date }}</td>
+    <td>{{ student.time }}</td>
+  </tr>
+  {% endfor %}
+
+  {% for student in data %}
+    {% if student.name not in late_students|map(attribute='name') %}
+    <tr>
+      <td>{{ loop.index + late_students|length }}</td>
+      <td>{{ student.name }}</td>
+      <td>Present</td>
+      <td>{{ student.date }}</td>
+      <td>{{ student.time }}</td>
+    </tr>
+    {% endif %}
+  {% endfor %}
+
+</table>
+
+<h3>🚫 Absent Students</h3>
+<button onclick="downloadCSV('absent')">⬇ Download CSV</button>
+
+<table id="absentTable">
+  <tr>
+    <th>S.No</th><th>Name</th><th>Status</th><th>Date</th><th>Time</th>
+  </tr>
+
+  {% for student in absentees %}
+  <tr>
+    <td>{{ loop.index }}</td>
+    <td>{{ student.name }}</td>
+    <td>Absent</td>
+    <td>{{ student.date }}</td>
+    <td>{{ student.time }}</td>
+  </tr>
+  {% endfor %}
+
+</table>
+
+<br>
+<a href="{{ url_for('show_attendance') }}"><button>⬅ Back To Attendance</button></a>
+
+<script>
+function quoteCell(str) {
+  if (!str) return '""';
+  const s = str.toString();
+  return s.includes(',') || s.includes('"') ? `"${s.replace(/"/g,'""')}"` : s;
+}
+
+function downloadCSV(type) {
+  const table = document.getElementById(type + 'Table');
+  let rows = [];
+  const headers = Array.from(table.querySelectorAll('th')).map(h => quoteCell(h.innerText));
+  rows.push(headers.join(','));
+
+  for (const tr of table.querySelectorAll('tr')) {
+    const cells = Array.from(tr.querySelectorAll('td')).map(td => quoteCell(td.innerText));
+    if (cells.length) rows.push(cells.join(','));
+  }
+
+  const csvBlob = new Blob([rows.join('\n')], {type:'text/csv'});
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(csvBlob);
+  link.download = type + '_students.csv';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+</script>
+
+</body>
+</html> -->
+
+
+
+
+
+<!-- 
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,44 +235,183 @@
   button { margin: 10px; padding: 10px 20px; border-radius: 25px; background: #00796b; color: white; cursor: pointer; }
 </style>
 </head>
+
 <body>
 
 <h2>✅ Present / Late Students</h2>
 <button onclick="downloadCSV('present')">⬇ Download CSV</button>
+
+
+
 <table id="presentTable">
   <tr>
-    <th>S.No</th><th>Roll No</th><th>Name</th><th>Status</th>
+    <th>S.No</th><th>Name</th><th>Status</th><th>Date</th><th>Time</th>
   </tr>
+
   {% for student in late_students %}
   <tr>
     <td>{{ loop.index }}</td>
-    <td>{{ student.roll }}</td>
-    <td>{{ student.name }}</td>
+    <td>{{ student.student_name }}</td>
     <td>Late</td>
+    <td>{{ student.date }}</td>
+    <td>{{ student.time }}</td>
   </tr>
   {% endfor %}
-  {% for student in data if student not in late_students %}
+
+  {% for student in data %}
+    {% if student.student_name not in late_students|map(attribute='student_name') %}
+    <tr>
+      <td>{{ loop.index + late_students|length }}</td>
+      <td>{{ student.student_name }}</td>
+      <td>Present</td>
+      <td>{{ student.date }}</td>
+      <td>{{ student.time }}</td>
+    </tr>
+    {% endif %}
+  {% endfor %}
+
+</table>
+
+<h3>🚫 Absent Students</h3>
+<button onclick="downloadCSV('absent')">⬇ Download CSV</button>
+<div style="text-align:center; margin:20px;">
+    <button onclick="location.reload();" style="padding:10px 20px; border-radius:8px; background:#00695c; color:white; border:none; cursor:pointer;">
+        🔄 Refresh
+
+    </button>
+     
+
+</div>
+
+<table id="absentTable">
   <tr>
-    <td>{{ loop.index + late_students|length }}</td>
-    <td>{{ student.roll }}</td>
-    <td>{{ student.name }}</td>
-    <td>Present</td>
+    <th>S.No</th><th>Name</th><th>Status</th><th>Date</th><th>Time</th>
   </tr>
+
+  {% for student in absentees %}
+  <tr>
+    <td>{{ loop.index }}</td>
+    <td>{{ student }}</td>
+    <td>Absent</td>
+    <td>{{ current_date }}</td>
+    <td> - </td>
+  </tr>
+  {% endfor %}
+
+</table>
+
+<br>
+<a href="{{ url_for('show_attendance') }}"><button>⬅ Back To Attendance</button></a>
+
+<script>
+function quoteCell(str) {
+  if (!str) return '""';
+  const s = str.toString();
+  return s.includes(',') || s.includes('"') ? `"${s.replace(/"/g,'""')}"` : s;
+}
+
+function downloadCSV(type) {
+  const table = document.getElementById(type + 'Table');
+  let rows = [];
+  const headers = Array.from(table.querySelectorAll('th')).map(h => quoteCell(h.innerText));
+  rows.push(headers.join(','));
+
+  for (const tr of table.querySelectorAll('tr')) {
+    const cells = Array.from(tr.querySelectorAll('td')).map(td => quoteCell(td.innerText));
+    if (cells.length) rows.push(cells.join(','));
+  }
+
+  const csvBlob = new Blob([rows.join('\n')], {type:'text/csv'});
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(csvBlob);
+  link.download = type + '_students.csv';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+// Auto-refresh every 5 minutes to update attendance
+setInterval(function() {
+    location.reload();
+}, 5 * 60 * 1000); // 5 minutes in milliseconds
+
+</script>
+
+</body>
+</html> -->
+
+
+<!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Absent & Late Students</title>
+<style>
+  body { font-family: "Poppins", sans-serif; text-align: center; padding: 20px; background: #f0f8ff; color: #333; }
+  h2 { color: #00796b; }
+  h3 { color: #d32f2f; }
+  table { border-collapse: collapse; width: 80%; margin: 20px auto; background: #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.15); border-radius: 10px; }
+  th { padding: 10px; color: white; }
+  #presentTable th { background: linear-gradient(90deg, #81c784, #388e3c); }
+  #absentTable th { background: linear-gradient(90deg, #ef5350, #c62828); }
+  td { padding: 10px; border-bottom: 1px solid #ddd; }
+  tr:hover { background-color: #e0f2f1; }
+  button { margin: 10px; padding: 10px 20px; border-radius: 25px; background: #00796b; color: white; cursor: pointer; }
+</style>
+</head>
+
+<body>
+
+<h2>✅ Present / Late Students</h2>
+<button onclick="downloadCSV('present')">⬇ Download CSV</button>
+
+<table id="presentTable">
+  <tr>
+    <th>S.No</th><th>Name</th><th>Status</th><th>Date</th><th>Time</th>
+  </tr>
+
+  {% for student in late_students %}
+  <tr>
+    <td>{{ loop.index }}</td>
+    <td>{{ student.student_name }}</td>
+    <td>Late</td>
+    <td>{{ student.date }}</td>
+    <td>{{ student.time }}</td>
+  </tr>
+  {% endfor %}
+
+  {% for student in data %}
+    {% if student.student_name not in late_students|map(attribute='student_name') %}
+    <tr>
+      <td>{{ loop.index + late_students|length }}</td>
+      <td>{{ student.student_name }}</td>
+      <td>Present</td>
+      <td>{{ student.date }}</td>
+      <td>{{ student.time }}</td>
+    </tr>
+    {% endif %}
   {% endfor %}
 </table>
 
 <h3>🚫 Absent Students</h3>
 <button onclick="downloadCSV('absent')">⬇ Download CSV</button>
+
+<div style="text-align:center; margin:20px;">
+</div>
+
 <table id="absentTable">
   <tr>
-    <th>S.No</th><th>Roll No</th><th>Name</th><th>Status</th>
+    <th>S.No</th><th>Name</th><th>Status</th><th>Date</th><th>Time</th>
   </tr>
+
   {% for student in absentees %}
   <tr>
     <td>{{ loop.index }}</td>
-    <td>{{ student.roll }}</td>
-    <td>{{ student.name }}</td>
+    <td>{{ student }}</td>
     <td>Absent</td>
+    <td>{{ current_date }}</td>
+    <td> - </td>
   </tr>
   {% endfor %}
 </table>
@@ -88,4 +446,153 @@ function downloadCSV(type) {
 </script>
 
 </body>
+</html> -->
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Absent & Late Students</title>
+<style>
+  body { font-family: "Poppins", sans-serif; text-align: center; padding: 20px; background: #f0f8ff; color: #333; }
+  h2 { color: #00796b; }
+  h3 { color: #d32f2f; }
+  table { border-collapse: collapse; width: 80%; margin: 20px auto; background: #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.15); border-radius: 10px; }
+  th { padding: 10px; color: white; }
+  #presentTable th { background: linear-gradient(90deg, #81c784, #388e3c); }
+  #absentTable th { background: linear-gradient(90deg, #ef5350, #c62828); }
+  td { padding: 10px; border-bottom: 1px solid #ddd; }
+  tr:hover { background-color: #e0f2f1; }
+  button { margin: 10px; padding: 10px 20px; border-radius: 25px; background: #00796b; color: white; cursor: pointer; }
+  input[type=text] { padding: 8px 12px; width: 300px; border-radius: 5px; border: 1px solid #ccc; margin-top: 10px; }
+  form { display: inline-block; margin: 5px; }
+</style>
+</head>
+
+<body>
+
+<h2>✅ Present / Late Students</h2>
+<button onclick="downloadCSV('present')">⬇ Download CSV</button>
+
+<!-- Search form (applies to all tables) -->
+<div style="text-align:center; margin:20px;">
+    <form method="GET">
+        <input type="text" name="search" placeholder="Search by name, status, date, or time" value="{{ search_query }}">
+        <button type="submit" style="padding:8px 15px; border-radius:5px;">Search</button>
+    </form>
+
+</div>
+
+<!-- Present / Late Table -->
+<table id="presentTable">
+  <tr>
+    <th>S.No</th><th>Name</th><th>Status</th><th>Date</th><th>Time</th>
+  </tr>
+
+  {% if search_results %}
+      {% for student in search_results %}
+      {% if student.status.lower() in ['present','late'] %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ student.student_name }}</td>
+        <td>{{ student.status }}</td>
+        <td>{{ student.date }}</td>
+        <td>{{ student.time }}</td>
+      </tr>
+      {% endif %}
+      {% endfor %}
+  {% else %}
+      {% for student in late_students %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ student.student_name }}</td>
+        <td>Late</td>
+        <td>{{ student.date }}</td>
+        <td>{{ student.time }}</td>
+      </tr>
+      {% endfor %}
+
+      {% for student in data %}
+      {% if student.student_name not in late_students|map(attribute='student_name') %}
+      <tr>
+        <td>{{ loop.index + late_students|length }}</td>
+        <td>{{ student.student_name }}</td>
+        <td>Present</td>
+        <td>{{ student.date }}</td>
+        <td>{{ student.time }}</td>
+      </tr>
+      {% endif %}
+      {% endfor %}
+  {% endif %}
+</table>
+
+<h3>🚫 Absent Students</h3>
+<button onclick="downloadCSV('absent')">⬇ Download CSV</button>
+
+<!-- Absent Table -->
+<table id="absentTable">
+  <tr>
+    <th>S.No</th><th>Name</th><th>Status</th><th>Date</th><th>Time</th>
+  </tr>
+
+  {% if search_results %}
+      {% for student in search_results %}
+      {% if student.status.lower() == 'absent' %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ student.student_name }}</td>
+        <td>Absent</td>
+        <td>{{ student.date }}</td>
+        <td> - </td>
+      </tr>
+      {% endif %}
+      {% endfor %}
+  {% else %}
+      {% for student in absentees %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ student }}</td>
+        <td>Absent</td>
+        <td>{{ current_date }}</td>
+        <td> - </td>
+      </tr>
+      {% endfor %}
+  {% endif %}
+</table>
+
+<br>
+<a href="{{ url_for('show_attendance') }}"><button>⬅ Back To Attendance</button></a>
+
+<script>
+function quoteCell(str) {
+  if (!str) return '""';
+  const s = str.toString();
+  return s.includes(',') || s.includes('"') ? `"${s.replace(/"/g,'""')}"` : s;
+}
+
+function downloadCSV(type) {
+  const table = document.getElementById(type + 'Table');
+  let rows = [];
+  const headers = Array.from(table.querySelectorAll('th')).map(h => quoteCell(h.innerText));
+  rows.push(headers.join(','));
+  for (const tr of table.querySelectorAll('tr')) {
+    const cells = Array.from(tr.querySelectorAll('td')).map(td => quoteCell(td.innerText));
+    if (cells.length) rows.push(cells.join(','));
+  }
+  const csvBlob = new Blob([rows.join('\n')], {type:'text/csv'});
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(csvBlob);
+  link.download = type + '_students.csv';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+</script>
+
+</body>
 </html>
+
