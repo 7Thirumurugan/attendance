@@ -448,9 +448,7 @@ function downloadCSV(type) {
 </body>
 </html> -->
 
-
-
-
+<!-- 
 
 <!DOCTYPE html>
 <html lang="en">
@@ -478,20 +476,22 @@ function downloadCSV(type) {
 <h2>✅ Present / Late Students</h2>
 <button onclick="downloadCSV('present')">⬇ Download CSV</button>
 
-<!-- Search form (applies to all tables) -->
 <div style="text-align:center; margin:20px;">
     <form method="GET">
         <input type="text" name="search" placeholder="Search by name, status, date, or time" value="{{ search_query }}">
         <button type="submit" style="padding:8px 15px; border-radius:5px;">Search</button>
     </form>
-
 </div>
 
-<!-- Present / Late Table -->
+
+
+
+ 
 <table id="presentTable">
   <tr>
     <th>S.No</th><th>Name</th><th>Status</th><th>Date</th><th>Time</th>
   </tr>
+
 
   {% if search_results %}
       {% for student in search_results %}
@@ -530,10 +530,11 @@ function downloadCSV(type) {
   {% endif %}
 </table>
 
-<h3>🚫 Absent Students</h3>
+
+<h2>🚫 Absent Students</h3>
 <button onclick="downloadCSV('absent')">⬇ Download CSV</button>
 
-<!-- Absent Table -->
+
 <table id="absentTable">
   <tr>
     <th>S.No</th><th>Name</th><th>Status</th><th>Date</th><th>Time</th>
@@ -596,3 +597,643 @@ function downloadCSV(type) {
 </body>
 </html>
 
+
+ -->
+
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Present & Absent Students</title>
+<style>
+
+  body { 
+      font-family: "Poppins", sans-serif; 
+      text-align: center; 
+      padding: 20px; 
+      background: linear-gradient(135deg, #e0f7fa 0%, #f1f8e9 100%);
+      color: #333; 
+  }
+
+  /* ===========================
+     LIGHT SEA GREEN THEME
+     =========================== */
+  :root {
+      --seagreen: #20B2AA;         /* Light Sea Green */
+      --seagreen-dark: #1a948e;    /* darker shade */
+      --seagreen-light: #46c8c2;   /* brighter shade */
+  }
+
+  /* ===========================
+     TOGGLE SWITCH
+     =========================== */
+  .toggle {
+      width: 55px;
+      height: 28px;
+      background: #bce9e6;
+      border-radius: 30px;
+      cursor: pointer;
+      position: relative;
+      transition: 0.25s ease;
+      position:center;
+      box-shadow: inset 0 0 8px rgba(0,0,0,0.15);
+  }
+
+  .toggle.on {
+      background: var(--seagreen);
+  }
+
+  .toggle .knob {
+      width: 24px;
+      height: 24px;
+      background: white;
+      border-radius: 50%;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+      transition: 0.25s ease;
+  }
+
+  .toggle.on .knob {
+      left: 29px;
+      box-shadow: 0 0 10px rgba(32, 178, 170, 0.6);
+  }
+
+  /* ===========================
+     HEADERS
+     =========================== */
+  h2 { 
+      color: var(--seagreen); 
+      font-size: 26px;
+      margin-top: 20px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+  }
+
+  /* Fade animation */
+  #presentSection, #absentSection {
+      animation: fadeIn 0.4s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(10px);}
+      to   {opacity: 1; transform: translateY(0);}
+  }
+
+  /* ===========================
+     TABLE STYLE
+     =========================== */
+  table { 
+      border-collapse: separate;
+      width: 85%; 
+      margin: 25px auto; 
+      background: #fff; 
+      border-radius: 12px; 
+      overflow: hidden;
+      box-shadow: 0 6px 25px rgba(0,0,0,0.15); 
+  }
+
+  th { 
+      padding: 12px; 
+      color: white; 
+      font-weight: 600;
+      cursor: pointer; 
+      user-select: none;
+      letter-spacing: .5px;
+  }
+
+  td { 
+      padding: 12px; 
+      border-bottom: 1px solid #eee; 
+      font-size: 15px;
+  }
+
+  tr:hover { 
+      background: rgba(32,178,170,0.10); 
+      transition: .3s;
+  }
+
+  /* Table headers (unchanged) */
+  #presentTable th { background: linear-gradient(90deg,  #47c6bf,  #46c8c2); }
+  #absentTable th  { background: linear-gradient(90deg, #ef5350, #c62828); }
+
+  /* ===========================
+     BADGES
+     =========================== */
+  .badge-container { margin-top: 12px; }
+
+  .badge { 
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 25px;
+      font-weight: 600;
+      font-size: 14px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  }
+
+  .badge.present { background:#2e7d32; }
+  .badge.late    { background:#f9a825; color: #444; }
+  .badge.absent  { background:#c62828; }
+
+  /* Row highlights */
+  tr.row-present { background: #e8f5e9; }
+  tr.row-late    { background: #fff8e1; }
+  tr.row-absent  { background: #ffebee; }
+
+  /* ===========================
+     SEARCH BOX
+     =========================== */
+  input[type=text] { 
+      padding: 10px 15px; 
+      width: 320px; 
+      border-radius: 25px; 
+      border: 2px solid var(--seagreen); 
+      font-size: 15px;
+      outline: none;
+      transition: 0.3s;
+  }
+
+  input[type=text]:focus {
+      box-shadow: 0 0 8px rgba(32,178,170,0.6);
+      transform: scale(1.03);
+  }
+
+  /* ===========================
+     VOICE BUTTON
+     =========================== */
+  button.voice-btn {
+      padding: 10px 14px; 
+      border-radius: 50%; 
+      background: var(--seagreen); 
+      color:white;
+      border: none;
+      font-size: 18px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+      transition: 0.3s;
+      cursor: pointer;
+  }
+
+  button.voice-btn:hover {
+      transform: scale(1.15);
+      background: var(--seagreen-dark);
+  }
+
+  /* ===========================
+     CSV BUTTON
+     =========================== */
+  button.csv-btn {
+      background: var(--seagreen);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-size: 14px;
+      color:white;
+      transition: 0.3s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+
+  button.csv-btn:hover {
+      background: var(--seagreen-dark);
+      transform: translateY(-2px);
+  }
+
+  /* ===========================
+     BACK BUTTON
+     =========================== */
+  button.back-btn {
+      background: var(--seagreen);
+      border:none;
+      padding:10px 18px;
+      border-radius:25px;
+      font-size:14px;
+      color:white;
+      box-shadow:0 4px 12px rgba(0,0,0,0.2);
+      transition:.3s;
+  }
+
+  button.back-btn:hover {
+      background: var(--seagreen-dark);
+      transform:translateY(-2px);
+  }
+
+  /* ===========================
+     RADIO BUTTON
+     =========================== */
+  input[type="radio"] {
+      accent-color: var(--seagreen);
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      border-radius: 50%;
+      transition: 0.2s ease;
+  }
+
+  input[type="radio"]:hover {
+      filter: brightness(1.15);
+      transform: scale(1.05);
+  }
+
+  input[type="radio"]:checked {
+      filter: drop-shadow(0 0 6px rgba(32,178,170,0.6));
+  }
+
+  .sort-ind { 
+      margin-left: 6px; 
+      font-size: 13px;
+  }
+ 
+
+</style>
+
+
+
+</head>
+
+<body>
+
+<h2>📋 Select View</h2>
+
+<div style="margin-bottom: 12px;">
+    <label>
+        <input type="radio" name="view" value="present" checked onclick="toggleTables()"> Present / Late
+    </label>
+
+    <label style="margin-left: 25px;">
+        <input type="radio" name="view" value="absent" onclick="toggleTables()"> Absent Only
+    </label>
+</div>
+
+<!-- BADGES (counts) -->
+<div class="badge-container" aria-hidden="false">
+    <span class="badge present">Present: {{ (data|length - late_students|length) if data is defined and late_students is defined else 0 }}</span>
+    <span class="badge late">Late: {{ late_students|length if late_students is defined else 0 }}</span>
+    <span class="badge absent">Absent: {{ absentees|length if absentees is defined else 0 }}</span>
+</div>
+
+
+<!-- <div id="presentSearch" style="text-align:center; margin:20px;">
+    <form id="presentForm" method="GET">
+        <input id="searchBoxPresent" type="text" name="search" placeholder="Search Present/Late" value="{{ search_query }}" onkeyup="autoSearch('presentForm')">
+    </form>
+</div>
+
+
+<div id="absentSearch" style="text-align:center; margin:20px; display:none;">
+    <form id="absentForm" method="GET">
+        <input id="searchBoxAbsent" type="text" name="search" placeholder="Search Absent Students" value="{{ search_query }}" onkeyup="autoSearch('absentForm')">
+    </form>
+</div> -->
+
+
+<div id="presentSearch" style="text-align:center; margin:20px;">
+    <form id="presentForm" method="GET" style="display:flex; justify-content:center; align-items:center; gap:10px;">
+        <input id="searchBoxPresent" type="text" name="search" 
+               placeholder="Search Present/Late" 
+               value="{{ search_query }}" 
+               onkeyup="autoSearch('presentForm')">
+
+        <button type="button" onclick="startVoice('searchBoxPresent')" style="padding:8px 12px; border-radius:50%; background:#00796b; color:white;">
+            🎤
+        </button>
+    </form>
+</div>
+
+
+<div id="absentSearch" style="text-align:center; margin:20px; display:none;">
+    <form id="absentForm" method="GET" style="display:flex; justify-content:center; align-items:center; gap:10px;">
+        <input id="searchBoxAbsent" type="text" name="search" 
+               placeholder="Search Absent Students" 
+               value="{{ search_query }}" 
+               onkeyup="autoSearch('absentForm')">
+
+        <button type="button" onclick="startVoice('searchBoxAbsent')" style="padding:8px 12px; border-radius:50%; background:#00796b; color:white;">
+            🎤
+        </button>
+    </form>
+</div>
+
+
+
+<!-- PRESENT SECTION -->
+<div id="presentSection">
+<h2>✅ Present / Late Students</h2>
+<button class="csv-btn" onclick="downloadCSV('present')">⬇ Download CSV</button>
+
+
+<table id="presentTable" aria-label="Present Table">
+  <tr>
+    <th onclick="sortTable('presentTable',0,'number')">S.No <span class="sort-ind" id="present-sort-0"></span></th>
+    <th onclick="sortTable('presentTable',1,'string')">Name <span class="sort-ind" id="present-sort-1"></span></th>
+    <th onclick="sortTable('presentTable',2,'string')">Status <span class="sort-ind" id="present-sort-2"></span></th>
+    <th onclick="sortTable('presentTable',3,'date')">Date <span class="sort-ind" id="present-sort-3"></span></th>
+    <th onclick="sortTable('presentTable',4,'string')">Time <span class="sort-ind" id="present-sort-4"></span></th>
+  </tr>
+
+  {% if search_results %}
+      {% set p_count = 0 %}
+      {% for s in search_results %}
+          {% if s.status.lower() in ['present','late'] %}
+              {% set p_count = p_count + 1 %}
+              <tr class="row-{{ 'late' if s.status.lower()=='late' else 'present' }}">
+                <td>{{ p_count }}</td>
+                <td>{{ s.student_name }}</td>
+                <td>{{ s.status }}</td>
+                <td>{{ s.date }}</td>
+                <td>{{ s.time }}</td>
+              </tr>
+          {% endif %}
+      {% endfor %}
+      {% if p_count == 0 %}
+        <tr><td colspan="5" class="no-results">No present/late records matched your search.</td></tr>
+      {% endif %}
+  {% else %}
+      {% set idx = 0 %}
+      {% for s in late_students %}
+        {% set idx = idx + 1 %}
+        <tr class="row-late">
+          <td>{{ idx }}</td>
+          <td>{{ s.student_name }}</td>
+          <td>Late</td>
+          <td>{{ s.date }}</td>
+          <td>{{ s.time }}</td>
+        </tr>
+      {% endfor %}
+
+      {% set base = late_students|length %}
+      {% set pidx = 0 %}
+      {% for s in data %}
+        {% if s.student_name not in late_students|map(attribute='student_name') %}
+          {% set pidx = pidx + 1 %}
+          <tr class="row-present">
+            <td>{{ base + pidx }}</td>
+            <td>{{ s.student_name }}</td>
+            <td>Present</td>
+            <td>{{ s.date }}</td>
+            <td>{{ s.time }}</td>
+          </tr>
+        {% endif %}
+      {% endfor %}
+  {% endif %}
+</table>
+</div>
+
+<!-- ABSENT SECTION -->
+<div id="absentSection" style="display:none;">
+<h2>🚫 Absent Students</h2>
+<button class="csv-btn" onclick="downloadCSV('absent')">⬇ Download CSV</button>
+
+<table id="absentTable" aria-label="Absent Table">
+  <tr>
+    <th onclick="sortTable('absentTable',0,'number')">S.No <span class="sort-ind" id="absent-sort-0"></span></th>
+    <th onclick="sortTable('absentTable',1,'string')">Name <span class="sort-ind" id="absent-sort-1"></span></th>
+    <th onclick="sortTable('absentTable',2,'string')">Status <span class="sort-ind" id="absent-sort-2"></span></th>
+    <th onclick="sortTable('absentTable',3,'date')">Date <span class="sort-ind" id="absent-sort-3"></span></th>
+    <th onclick="sortTable('absentTable',4,'string')">Time <span class="sort-ind" id="absent-sort-4"></span></th>
+  </tr>
+
+  {% if search_results %}
+      {% set a_count = 0 %}
+      {% for s in search_results %}
+          {% if s.status.lower() == 'absent' %}
+              {% set a_count = a_count + 1 %}
+              <tr class="row-absent">
+                <td>{{ a_count }}</td>
+                <td>{{ s.student_name }}</td>
+                <td>Absent</td>
+                <td>{{ s.date }}</td>
+                <td>-</td>
+              </tr>
+          {% endif %}
+      {% endfor %}
+      {% if a_count == 0 %}
+        <tr><td colspan="5" class="no-results">No absent records matched your search.</td></tr>
+      {% endif %}
+  {% else %}
+      {% set ai = 0 %}
+      {% for s in absentees %}
+        {% set ai = ai + 1 %}
+        <tr class="row-absent">
+          <td>{{ ai }}</td>
+          <td>{{ s }}</td>
+          <td>Absent</td>
+          <td>{{ current_date }}</td>
+          <td>-</td>
+        </tr>
+      {% endfor %}
+  {% endif %}
+</table>
+</div>
+
+<br>
+<a href="{{ url_for('show_attendance') }}">
+    <button class="back-btn">⬅ Back To Attendance</button>
+</a>
+
+<script>
+
+
+
+
+// function renumber(tableId) {
+//     const table = document.getElementById(tableId);
+//     if (!table) return;
+
+//     const rows = table.querySelectorAll("tr");
+//     let count = 1;
+
+//     rows.forEach((row) => {
+//         const cells = row.querySelectorAll("td");
+//         if (cells.length > 0) {
+//             cells[0].innerText = count++;
+//         }
+//     });
+// }
+
+
+
+function renumber(tableId) {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+
+    const rows = table.querySelectorAll("tr");
+    let count = 1;
+
+    rows.forEach((row) => {
+        const cells = row.querySelectorAll("td");
+        if (cells.length > 0) {
+            cells[0].innerText = count++;
+        }
+    });
+}
+
+
+// Auto-submit while typing
+function autoSearch(formId) {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+        document.getElementById(formId).submit();
+    },500 );
+}
+
+// Voice Search Function
+function startVoice(inputId) {
+    if (!('webkitSpeechRecognition' in window)) {
+        alert("Your browser does not support voice search.");
+        return;
+    }
+
+    let recognizer = new webkitSpeechRecognition();
+    recognizer.lang = "en-US";
+    recognizer.continuous = false;
+    recognizer.interimResults = false;
+
+    recognizer.start();
+
+    recognizer.onresult = function(event) {
+        let speech = event.results[0][0].transcript;
+        document.getElementById(inputId).value = speech;
+
+        // Auto-submit after voice input
+        if (inputId === "searchBoxPresent") {
+            document.getElementById("presentForm").submit();
+        } else {
+            document.getElementById("absentForm").submit();
+        }
+    };
+
+    recognizer.onerror = function(event) {
+        alert("Voice recognition error: " + event.error);
+    };
+}
+
+
+function toggleTables() {
+    let view = document.querySelector('input[name="view"]:checked').value;
+
+    if (view === "present") {
+
+        document.getElementById("presentSection").style.display = "block";
+        document.getElementById("absentSection").style.display  = "none";
+        document.getElementById("presentSearch").style.display = "block";
+        document.getElementById("absentSearch").style.display  = "none";
+        document.getElementById("searchBoxPresent").focus();
+
+        renumber("presentTable");   // ✅ ADD THIS
+
+    } else {
+
+        document.getElementById("presentSection").style.display = "none";
+        document.getElementById("absentSection").style.display  = "block";
+        document.getElementById("presentSearch").style.display = "none";
+        document.getElementById("absentSearch").style.display  = "block";
+        document.getElementById("searchBoxAbsent").focus();
+
+        renumber("absentTable");    // ✅ ADD THIS
+    }
+}
+
+/* CSV download (unchanged) */
+function quoteCell(str) {
+  if (str === undefined || str === null) return '""';
+  const s = str.toString();
+  return s.includes(',') || s.includes('"') ? `"${s.replace(/"/g,'""')}"` : s;
+}
+function downloadCSV(type) {
+  const table = document.getElementById(type + 'Table');
+  let rows = [];
+  const headers = Array.from(table.querySelectorAll('th')).map(h => quoteCell(h.innerText));
+  rows.push(headers.join(','));
+  for (const tr of table.querySelectorAll('tr')) {
+    const cells = Array.from(tr.querySelectorAll('td')).map(td => quoteCell(td.innerText));
+    if (cells.length) rows.push(cells.join(','));
+  }
+  const csvBlob = new Blob([rows.join('\n')], {type:'text/csv'});
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(csvBlob);
+  link.download = type + '_students.csv';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+/* Table sorting
+   - tableId: id of table
+   - col: zero-based column index
+   - type: 'string' | 'number' | 'date'
+*/
+const sortState = {}; // keep asc/desc per table+col
+
+function sortTable(tableId, col, type) {
+    const table = document.getElementById(tableId);
+    if (!table) return;
+    const tbodyRows = Array.from(table.querySelectorAll('tr')).slice(1); // exclude header
+
+    // Filter out rows with no cells (sometimes empty)
+    const rows = tbodyRows.filter(r => r.querySelectorAll('td').length);
+
+    // Determine direction
+    const key = tableId + '-' + col;
+    const asc = !(sortState[key] === 'asc');
+    sortState[key] = asc ? 'asc' : 'desc';
+
+    // comparator
+    const cmp = (a, b) => {
+        const aText = (a.querySelectorAll('td')[col] || {innerText:''}).innerText.trim();
+        const bText = (b.querySelectorAll('td')[col] || {innerText:''}).innerText.trim();
+
+        if (type === 'number') {
+            const na = parseFloat(aText) || 0;
+            const nb = parseFloat(bText) || 0;
+            return na - nb;
+        }
+        if (type === 'date') {
+            // Expecting YYYY-MM-DD; if not, fallback to string compare
+            const pa = Date.parse(aText) || 0;
+            const pb = Date.parse(bText) || 0;
+            return pa - pb;
+        }
+        // string (case-insensitive)
+        return aText.toLowerCase().localeCompare(bText.toLowerCase());
+    };
+
+    rows.sort((r1, r2) => {
+        const res = cmp(r1, r2);
+        return asc ? res : -res;
+    });
+
+    // Rebuild table body: keep header, append sorted rows
+    const header = table.querySelectorAll('tr')[0];
+    // clear existing rows
+    const all = Array.from(table.querySelectorAll('tr'));
+    all.slice(1).forEach(r => r.remove());
+
+    // append rows in order and re-number first column if it is S.No
+    rows.forEach((r, idx) => {
+        // update S.No cell if present
+        const firstCell = r.querySelectorAll('td')[0];
+        if (firstCell) firstCell.innerText = idx + 1;
+        table.appendChild(r);
+    });
+
+    updateSortIndicators(tableId, col, sortState[key]);
+    renumber(tableId);   // ✅ ADD THIS
+
+}
+
+function updateSortIndicators(tableId, col, direction) {
+    // clear all for this table
+    for (let i=0;i<10;i++){
+        const id = tableId + '-sort-' + i;
+        const el = document.getElementById(id);
+        if (el) el.innerText = '';
+    }
+    const target = document.getElementById(tableId + '-sort-' + col);
+    if (target) target.innerText = direction === 'asc' ? '▲' : '▼';
+}
+
+
+
+</script>
+
+</body>
+</html>
