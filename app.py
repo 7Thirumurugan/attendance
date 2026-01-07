@@ -3424,13 +3424,6 @@
 
 
 
-
-
-
-
-
-
-
 from flask import Flask, render_template, Response, redirect, session, send_file, request, url_for, jsonify
 import numpy as np
 import imutils
@@ -3474,8 +3467,21 @@ app.secret_key = "mysecretkey123"
 # ULTRAMSG WHATSAPP CONFIG
 # ---------------------------
 
-ULTRA_INSTANCE_ID = "instance150419"
-ULTRA_TOKEN = "ffm5tlm6x0gqp4ue"
+# ULTRA_INSTANCE_ID = "instance150419" 
+
+# ULTRA_TOKEN = "ffm5tlm6x0gqp4ue"
+
+
+#new instance
+
+# ULTRA_INSTANCE_ID="instance157552"
+# ULTRA_TOKEN="0hg9rc84mkwkmq0p"
+
+
+#dharanish
+ULTRA_INSTANCE_ID="instance157851"
+ULTRA_TOKEN="vd4x7m664yrrpv3i"
+
 
 def send_whatsapp_message(phone_number, message_text):
     url = f"https://api.ultramsg.com/{ULTRA_INSTANCE_ID}/messages/chat"
@@ -3484,15 +3490,12 @@ def send_whatsapp_message(phone_number, message_text):
         "to": phone_number,
         "body": message_text
     }
+
     try:
         response = requests.post(url, data=data, timeout=10)
         print("WhatsApp Response:", response.text)
     except Exception as e:
         print("WhatsApp send error:", e)
-
-
-
-
 
 # ---------------------------
 # EMAIL SENDER FUNCTION (NEW)
@@ -3574,6 +3577,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:0606@localhost:54
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+
 # --------- TABLES ---------
 
 class Student(db.Model):
@@ -3640,6 +3644,8 @@ embedder = cv2.dnn.readNetFromTorch(embeddingModel)
 recognizer = pickle.loads(open(recognizerFile, "rb").read())
 le = pickle.loads(open(labelEncFile, "rb").read())
 
+
+
 message = ""
 ADMIN_USERNAME = "Admin"
 ADMIN_PASSWORD = "Admin"
@@ -3680,6 +3686,7 @@ def mark_attendance(name):
 # CAMERA / FACE RECOGNITION
 # ---------------------------
 
+
 def generate_frames():
     global message
     cam = cv2.VideoCapture(0)
@@ -3698,8 +3705,8 @@ def generate_frames():
         (h, w) = frame.shape[:2]
 
         imageBlob = cv2.dnn.blobFromImage(
-            cv2.resize(frame, (300, 300)),
-            1.0, (300, 300),
+            cv2.resize(frame, (200, 200)),
+            1.0, (200, 200),
             (104.0, 177.0, 123.0),
             swapRB=False, crop=False
         )
@@ -3739,7 +3746,7 @@ def generate_frames():
             proba = preds[j]
             name = le.classes_[j]
 
-            if proba >= 0.75:
+            if proba >= 0.80:
                 # ------------------------------
                 # FIRST TIME IN THIS CAMERA RUN
                 # ------------------------------
@@ -3761,8 +3768,6 @@ def generate_frames():
                         if not sent_log:
                             student = Student.query.filter_by(name=name).first()
                             student_obj = Student.query.filter_by(name=name).first()
-
-                           
 
                             if student and student.phone:
                                 raw = student.phone.strip()
@@ -3787,11 +3792,11 @@ def generate_frames():
                                 db.session.add(log)
                                 db.session.commit()
 
-
                         # ----------------------
                         # EMAIL (NEW)
                         # morning + afternoon
                         # ----------------------
+
                         log_email = MessageLog.query.filter_by(
                             student_name=name,
                             date=today_str,
@@ -3799,28 +3804,26 @@ def generate_frames():
                             type="email"
                         ).first()
 
+
                         if not log_email and student and student.mail:
 
-                            # email_subject = "Attendance Marked"
-                            # email_body = f"Hello {name},\n\nYour attendance is marked at {datetime.now().strftime('%H:%M:%S')}.\n\nRegards,\nAttendance System"
-
-                            # send_email_notification(student.mail, email_subject, email_body)
+                        
                             
-                            email_subject = "Official Attendance Confirmation"
+                            email_subject = "SCE Official Attendance Confirmation"
 
                             email_body = (
                                 f"Dear {name},\n\n"
                                 f"This email is to formally confirm that your attendance has been successfully "
-                                f"recorded for today at {datetime.now().strftime('%H:%M:%S')}.\n\n"
+                                # f"recorded for today at {datetime.now().strftime('%H:%M:%S')}.\n\n"
+                                f"recorded for today ({period}) at {datetime.now().strftime('%H:%M:%S')}.\n\n"
                                 f"Please ensure that all attendance-related queries, if any, are reported "
                                 f"to the administration at the earliest.\n\n"
                                 f"Regards,\n"
-                                f"Attendance Management System\n"
+                                f"Attendance Monitoring System Suguna College of Engineering"
                                 f"[Automated Notification]"
                             )
 
                             send_email_notification(student.mail, email_subject, email_body)
-
 
                             db.session.add(MessageLog(
                                 student_name=name,
@@ -3919,7 +3922,6 @@ def generate_frames():
 
     cam.release()
 
-
 # ---------------------------
 # ROUTES
 # ---------------------------
@@ -3949,6 +3951,7 @@ def show_absent_page():
         Attendance.date == today_str,
         Attendance.time > "09:15:00"
     ).all()
+
 
     all_students = Student.query.all()
     all_names = {s.name for s in all_students}
@@ -4000,6 +4003,7 @@ def admin_logout():
     session.pop('admin', None)
     return redirect(url_for('show_attendance'))
 
+
 @app.route('/add', methods=['POST'])
 def add_student():
     data = request.get_json()
@@ -4046,4 +4050,4 @@ def delete_attendance(id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)

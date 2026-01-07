@@ -193,7 +193,7 @@ cam = cv2.VideoCapture(0)
 time.sleep(8.0)
 total = 0
 
-while total < 40:
+while total < 50:
     print(total)
     _, frame = cam.read()
     img = imutils.resize(frame, width=400)

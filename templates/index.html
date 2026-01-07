@@ -92,13 +92,15 @@
  -->
 
 
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Face Recognition Attendance</title>
 
   <style>
+    
+  
   body {
     text-align: center;
     font-family: "Segoe UI", Tahoma, sans-serif;
@@ -207,7 +209,7 @@
 
 <body>
 
-  <!-- LOADING SCREEN -->
+ 
   <div id="loadingScreen">
       <div class="spinner"></div>
       <div id="loadingText">Initializing Face Recognition...</div>
@@ -216,14 +218,14 @@
 
   <h1>Face Recognition Attendance System</h1>
 
-  <!-- CAMERA FEED -->
+  # CAMERA FEED 
   <img id="cameraFeed" src="{{ url_for('video_feed') }}" width="640" height="480">
 
   <br>
   <a class="attendance-btn" href="{{ url_for('show_attendance') }}">View Attendance</a>
 
 
-  <!-- SCRIPT -->
+  
   <script>
 
     let percent = 0;
@@ -253,5 +255,266 @@
   </script>
 
 </body>
-</html>
+</html> -->
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Face Recognition Attendance</title>
+
+  <style>
+
+  /* ORIGINAL CODE START (FIXED BACKGROUND) */
+ /* ORIGINAL CODE START (FIXED BACKGROUND) */
+body {
+    text-align: center;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    background: none;    /* FIXED */
+    color: #333;
+    margin: 0;
+    padding: 20px;
+}
+
+
+  h1 {
+    margin-top: 20px;
+    color: #00796b;
+    font-size: 2rem;
+  }
+
+ #cameraFeed {
+    display: none;
+    border: 5px solid #00796b;
+    border-radius: 15px;
+    margin-top: 25px;
+    max-width: 90%;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+  #loadingScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 9999;
+    transition: opacity 0.5s ease;
+  }
+
+  .spinner {
+    width: 80px;
+    height: 80px;
+    border: 10px solid #c8e6c9;
+    border-top: 10px solid #00796b;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  #loadingText {
+    margin-top: 15px;
+    font-size: 22px;
+    color: #00796b;
+    font-weight: bold;
+  }
+
+  #loadingPercent {
+    margin-top: 5px;
+    font-size: 26px;
+    font-weight: 700;
+    color: #004d40;
+  }
+
+  .attendance-btn {
+    display: inline-block;
+    margin-top: 25px;
+    font-size: 18px;
+    background: linear-gradient(90deg, #00bfa5, #00796b);
+    color: white;
+    padding: 12px 28px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    transition: all 0.3s ease;
+
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.attendance-btn:hover {
+    background: linear-gradient(90deg, #00796b, #004d40);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+}
+
+  /* ORIGINAL CODE END */
+
+
+
+  /* =====================================================
+        ⭐ 3D FLOATING SHAPES + DARK/LIGHT THEME ⭐
+     ====================================================== */
+
+  :root {
+    --bg1: #ffffff;     /* pure white */
+    --bg2: #dff9f7;     /* very light aqua */
+    --shape: rgba(0,0,0,0.08);  /* soft grey shapes */
+}
+
+
+ [data-theme="dark"] {
+    --bg1: #022b29;
+    --bg2: #014542;
+    --shape: rgba(255,255,255,0.05);
+}
+
+
+
+
+  /* Animated gradient background */
+  body {
+    background: linear-gradient(135deg, var(--bg1), var(--bg2));
+    background-size: 300% 300%;
+    animation: bgFlow 10s infinite ease-in-out;
+    overflow: hidden;
+    transition: background 1s ease;
+  }
+
+  @keyframes bgFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* 3D floating shapes */
+  .shape {
+    position: fixed;
+    width: 80px;
+    height: 80px;
+    background: var(--shape);
+    border-radius: 20px;
+    backdrop-filter: blur(3px);
+    animation: float 10s infinite ease-in-out;
+    z-index: -1;
+  }
+
+  .shape.circle { border-radius: 50%; }
+  .shape.small { width: 40px; height: 40px; }
+  .shape.big { width: 110px; height: 110px; }
+
+  /* Shape positions */
+  .shape:nth-child(1) { top: 10%; left: 5%; animation-delay: 0s; }
+  .shape:nth-child(2) { top: 70%; left: 80%; animation-delay: 2s; }
+  .shape:nth-child(3) { top: 40%; left: 30%; animation-delay: 1s; }
+  .shape:nth-child(4) { top: 20%; left: 70%; animation-delay: 3s; }
+  .shape:nth-child(5) { top: 85%; left: 15%; animation-delay: 4s; }
+
+  @keyframes float {
+    0%   { transform: translateY(0px) rotate(0deg); }
+    50%  { transform: translateY(-35px) rotate(35deg); }
+    100% { transform: translateY(0px) rotate(0deg); }
+  }
+
+
+  /* Theme Toggle Button */
+  #themeToggle {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    background: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: bold;
+    z-index: 99999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- ⭐ 3D FLOATING SHAPES -->
+  <div class="shape big"></div>
+  <div class="shape circle small"></div>
+  <div class="shape small"></div>
+  <div class="shape big circle"></div>
+  <div class="shape small circle"></div>
+  <div class="shape"></div>
+  <div class="shape big"></div>
+  
+
+  <!-- ⭐ THEME TOGGLE -->
+  <button id="themeToggle">Dark Mode</button>
+
+
+  <!-- LOADING SCREEN -->
+  <div id="loadingScreen">
+      <div class="spinner"></div>
+      <div id="loadingText">Initializing Face Recognition...</div>
+      <div id="loadingPercent">0%</div>
+  </div>
+
+  <h1>Face Recognition Attendance System</h1>
+
+  <img id="cameraFeed" src="{{ url_for('video_feed') }}" width="640" height="480">
+
+  <br>
+  <a class="attendance-btn" href="{{ url_for('show_attendance') }}">View Attendance</a>
+
+
+  <!-- SCRIPT -->
+  <script>
+
+    let percent = 0;
+    let percentInterval = setInterval(() => {
+        if (percent < 99) {
+            percent++;
+            document.getElementById("loadingPercent").innerText = percent + "%";
+        }
+    }, 20);
+
+    document.getElementById("cameraFeed").onload = function() {
+        percent = 100;
+        document.getElementById("loadingPercent").innerText = "100%";
+
+        document.getElementById("loadingScreen").style.opacity = 0;
+
+        setTimeout(() => {
+            document.getElementById("loadingScreen").style.display = "none";
+            document.getElementById("cameraFeed").style.display = "block";
+        }, 300);
+    };
+
+
+    /* ⭐ DARK/LIGHT MODE TOGGLE */
+    const btn = document.getElementById("themeToggle");
+    let dark = false;
+
+    btn.onclick = () => {
+        dark = !dark;
+        document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+        btn.innerText = dark ? "Light Mode" : "Dark Mode";
+    };
+
+  </script>
+
+</body>
+</html>
